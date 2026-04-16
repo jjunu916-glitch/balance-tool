@@ -357,6 +357,40 @@
   ::-webkit-scrollbar-thumb { background:var(--border-glow); border-radius:3px; }
 
   .footer { text-align:center; margin-top:40px; font-size:11px; color:var(--text-dim); letter-spacing:1px; }
+
+  /* ── 붙여넣기 모달 ── */
+  .modal-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.75); z-index:100;
+    align-items:center; justify-content:center;
+  }
+  .modal-overlay.open { display:flex; }
+  .modal {
+    background:var(--bg-panel); border:1px solid var(--border-glow);
+    border-radius:14px; padding:28px; width:90%; max-width:660px;
+    box-shadow:0 0 40px rgba(90,127,255,0.2);
+  }
+  .modal-title { font-family:'Rajdhani',sans-serif; font-size:17px; font-weight:700; color:#fff; margin-bottom:6px; }
+  .modal-desc { font-size:12px; color:var(--text-mid); margin-bottom:16px; line-height:1.7; }
+  .modal-textarea {
+    width:100%; height:160px; background:var(--bg-input);
+    border:1px solid var(--border); border-radius:8px;
+    color:var(--text); font-size:12px; font-family:'Noto Sans KR',sans-serif;
+    padding:12px; resize:vertical; outline:none; transition:border-color .2s;
+  }
+  .modal-textarea:focus { border-color:var(--accent); }
+  .modal-textarea::placeholder { color:var(--text-dim); }
+  .modal-preview {
+    margin-top:12px; max-height:150px; overflow-y:auto;
+    background:var(--bg-input); border:1px solid var(--border);
+    border-radius:8px; padding:10px; display:none;
+  }
+  .modal-preview table { width:100%; border-collapse:collapse; font-size:11px; }
+  .modal-preview th { color:var(--text-dim); padding:4px 8px; text-align:left; border-bottom:1px solid var(--border); }
+  .modal-preview td { color:var(--text); padding:4px 8px; }
+  .modal-preview tr:nth-child(even) td { background:rgba(255,255,255,0.02); }
+  .modal-actions { display:flex; gap:8px; margin-top:14px; justify-content:flex-end; }
+  .modal-count { font-size:11px; color:var(--green); margin-top:8px; }
 </style>
 </head>
 <body>
@@ -398,7 +432,10 @@
       <div class="card-title">교환소 아이템 구성</div>
       <div class="shop-toolbar">
         <div class="shop-total-badge">총 필요 재화: <strong id="total-display">0</strong></div>
-        <button class="btn btn-primary" onclick="addItem()">+ 아이템 추가</button>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-primary" onclick="openPasteModal()" style="background:var(--purple-dim);border-color:var(--purple);">📋 붙여넣기 가져오기</button>
+          <button class="btn btn-primary" onclick="addItem()">+ 아이템 추가</button>
+        </div>
       </div>
       <div class="shop-table-wrap">
         <table class="shop-table">
@@ -524,6 +561,29 @@
   </div>
 
   <div class="footer">일곱개의 대죄 GRAND CROSS &nbsp;·&nbsp; Game Design Tool</div>
+</div>
+
+<!-- ── 붙여넣기 모달 ── -->
+<div class="modal-overlay" id="paste-modal">
+  <div class="modal">
+    <div class="modal-title">교환소 구성 붙여넣기</div>
+    <div class="modal-desc">
+      구글 시트 / 엑셀에서 교환소 구성 영역을 복사(Ctrl+C) 후 아래에 붙여넣기(Ctrl+V) 하세요.<br>
+      <span style="color:var(--gold)">아이템 이름 · 요구량 · 총 수량</span> 컬럼을 자동으로 찾아서 가져옵니다.
+    </div>
+    <textarea class="modal-textarea" id="paste-input" placeholder="여기에 붙여넣기 (Ctrl+V)..." oninput="parsePaste()"></textarea>
+    <div class="modal-count" id="paste-count"></div>
+    <div class="modal-preview" id="paste-preview">
+      <table>
+        <thead><tr><th>아이템명</th><th>교환 비용</th><th>총 수량</th></tr></thead>
+        <tbody id="paste-preview-body"></tbody>
+      </table>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="closePasteModal()">취소</button>
+      <button class="btn btn-primary" id="paste-confirm-btn" onclick="confirmPaste()" disabled style="opacity:.4">가져오기</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -793,6 +853,107 @@ function switchTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   btn.classList.add('active');
+}
+
+// ── 붙여넣기 모달 ──
+let parsedPasteData = [];
+
+function openPasteModal() {
+  document.getElementById('paste-input').value = '';
+  document.getElementById('paste-count').textContent = '';
+  document.getElementById('paste-preview').style.display = 'none';
+  document.getElementById('paste-preview-body').innerHTML = '';
+  document.getElementById('paste-confirm-btn').disabled = true;
+  document.getElementById('paste-confirm-btn').style.opacity = '.4';
+  parsedPasteData = [];
+  document.getElementById('paste-modal').classList.add('open');
+  setTimeout(() => document.getElementById('paste-input').focus(), 100);
+}
+
+function closePasteModal() {
+  document.getElementById('paste-modal').classList.remove('open');
+}
+
+function parsePaste() {
+  const raw = document.getElementById('paste-input').value.trim();
+  if (!raw) return;
+
+  const rows = raw.split('\n').map(r => r.split('\t'));
+  if (rows.length === 0) return;
+
+  // 헤더 행 찾기 (아이템 이름/요구량/수량 키워드)
+  const NAME_KEYS  = ['이름', '아이템명', '보상 아이템'];
+  const COST_KEYS  = ['요구량', '교환 비용', '비용'];
+  const QTY_KEYS   = ['총 수량', '수량', '개수'];
+
+  let nameCol = -1, costCol = -1, qtyCol = -1;
+  let dataStartRow = 0;
+
+  // 헤더 행 탐색
+  for (let ri = 0; ri < Math.min(rows.length, 5); ri++) {
+    const row = rows[ri];
+    let foundName = false, foundCost = false, foundQty = false;
+    row.forEach((cell, ci) => {
+      const v = (cell || '').trim();
+      if (NAME_KEYS.some(k => v.includes(k))) { nameCol = ci; foundName = true; }
+      if (COST_KEYS.some(k => v.includes(k))) { costCol = ci; foundCost = true; }
+      if (QTY_KEYS.some(k => v.includes(k)))  { qtyCol  = ci; foundQty  = true; }
+    });
+    if (foundName || foundCost || foundQty) { dataStartRow = ri + 1; break; }
+  }
+
+  // 헤더 못 찾으면 컬럼 위치 기본값 추정 (이름=1, 수량=4, 요구량=6 — 이미지 기준)
+  if (nameCol === -1) nameCol = 1;
+  if (qtyCol  === -1) qtyCol  = 4;
+  if (costCol === -1) costCol = 6;
+
+  // 데이터 파싱
+  parsedPasteData = [];
+  for (let ri = dataStartRow; ri < rows.length; ri++) {
+    const row = rows[ri];
+    const name = (row[nameCol] || '').trim();
+    const cost = Number((row[costCol] || '0').trim().replace(/,/g,''));
+    const qty  = Number((row[qtyCol]  || '0').trim().replace(/,/g,''));
+    if (!name || name === '' || (!cost && !qty)) continue;
+    // 숫자만 있는 행(INDEX 등) 스킵
+    if (/^\d+$/.test(name)) continue;
+    parsedPasteData.push({ name, cost: cost || 0, qty: qty || 0 });
+  }
+
+  // 미리보기
+  const tbody = document.getElementById('paste-preview-body');
+  tbody.innerHTML = parsedPasteData.slice(0, 20).map(d =>
+    `<tr><td>${d.name}</td><td>${d.cost.toLocaleString()}</td><td>${d.qty.toLocaleString()}</td></tr>`
+  ).join('');
+
+  const count = document.getElementById('paste-count');
+  const preview = document.getElementById('paste-preview');
+  const btn = document.getElementById('paste-confirm-btn');
+
+  if (parsedPasteData.length > 0) {
+    count.textContent = `✓ ${parsedPasteData.length}개 아이템 인식됨`;
+    preview.style.display = 'block';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+  } else {
+    count.textContent = '아이템을 찾지 못했어요. 헤더 행을 포함해서 복사해 보세요.';
+    count.style.color = 'var(--red)';
+    preview.style.display = 'none';
+    btn.disabled = true;
+    btn.style.opacity = '.4';
+  }
+}
+
+function confirmPaste() {
+  if (parsedPasteData.length === 0) return;
+  items = [];
+  itemId = 0;
+  parsedPasteData.forEach(d => {
+    items.push({ id: ++itemId, name: d.name, cost: d.cost, qty: d.qty });
+  });
+  renderShop();
+  calc();
+  closePasteModal();
 }
 
 // ── 초기화 ──
