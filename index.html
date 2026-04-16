@@ -22,6 +22,8 @@
     --bronze-dim: #6b3d1a;
     --accent:     #5a7fff;
     --accent-dim: #2a3a7a;
+    --purple:     #a855f7;
+    --purple-dim: #4a1a7a;
     --text:       #d4daf0;
     --text-dim:   #5a6080;
     --text-mid:   #8a90b0;
@@ -29,6 +31,7 @@
     --red:        #e05a5a;
     --glow-gold:  0 0 12px rgba(232,184,75,0.35);
     --glow-blue:  0 0 16px rgba(90,127,255,0.3);
+    --glow-purple:0 0 16px rgba(168,85,247,0.3);
   }
 
   * { margin:0; padding:0; box-sizing:border-box; }
@@ -41,7 +44,6 @@
     overflow-x: hidden;
   }
 
-  /* ── 배경 장식 ── */
   body::before {
     content:'';
     position:fixed; inset:0;
@@ -52,30 +54,20 @@
 
   .app { position:relative; z-index:1; max-width:1100px; margin:0 auto; padding:24px 20px 60px; }
 
-  /* ── 헤더 ── */
   .header {
-    text-align:center;
-    padding: 36px 0 28px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 28px;
+    text-align:center; padding:36px 0 28px;
+    border-bottom:1px solid var(--border); margin-bottom:28px;
   }
   .header-tag {
-    font-family:'Rajdhani',sans-serif;
-    font-size:11px; letter-spacing:4px;
-    color: var(--accent); text-transform:uppercase;
-    margin-bottom:10px; opacity:.8;
+    font-family:'Rajdhani',sans-serif; font-size:11px; letter-spacing:4px;
+    color:var(--accent); text-transform:uppercase; margin-bottom:10px; opacity:.8;
   }
   .header h1 {
-    font-family:'Rajdhani',sans-serif;
-    font-size:30px; font-weight:700;
-    color:#fff; letter-spacing:2px;
-    text-shadow: 0 0 30px rgba(90,127,255,0.4);
+    font-family:'Rajdhani',sans-serif; font-size:30px; font-weight:700;
+    color:#fff; letter-spacing:2px; text-shadow:0 0 30px rgba(90,127,255,0.4);
   }
-  .header h1 span { color: var(--gold); }
-  .header-sub {
-    font-size:12px; color:var(--text-dim);
-    margin-top:8px; letter-spacing:1px;
-  }
+  .header h1 span { color:var(--gold); }
+  .header-sub { font-size:12px; color:var(--text-dim); margin-top:8px; letter-spacing:1px; }
 
   /* ── 탭 ── */
   .tabs { display:flex; gap:4px; margin-bottom:24px; }
@@ -84,39 +76,41 @@
     background:var(--bg-panel); border:1px solid var(--border);
     color:var(--text-dim); font-family:'Noto Sans KR',sans-serif;
     font-size:13px; font-weight:500; cursor:pointer;
-    border-radius:8px; transition:all .2s;
-    letter-spacing:.5px;
+    border-radius:8px; transition:all .2s; letter-spacing:.5px;
   }
   .tab-btn:hover { border-color:var(--border-glow); color:var(--text); }
   .tab-btn.active {
     background:var(--accent-dim); border-color:var(--accent);
-    color:#fff; box-shadow: var(--glow-blue);
+    color:#fff; box-shadow:var(--glow-blue);
+  }
+  .tab-btn.active.tab-annihilation {
+    background:var(--purple-dim); border-color:var(--purple);
+    box-shadow:var(--glow-purple);
   }
   .tab-content { display:none; }
   .tab-content.active { display:block; }
 
   /* ── 카드 ── */
   .card {
-    background:var(--bg-panel);
-    border:1px solid var(--border);
-    border-radius:12px; padding:22px;
-    margin-bottom:18px;
+    background:var(--bg-panel); border:1px solid var(--border);
+    border-radius:12px; padding:22px; margin-bottom:18px;
   }
   .card-title {
-    font-family:'Rajdhani',sans-serif;
-    font-size:13px; font-weight:600;
+    font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600;
     color:var(--accent); letter-spacing:2px;
     text-transform:uppercase; margin-bottom:16px;
     display:flex; align-items:center; gap:8px;
   }
   .card-title::before {
-    content:''; display:block;
-    width:3px; height:14px;
+    content:''; display:block; width:3px; height:14px;
     background:var(--accent); border-radius:2px;
   }
+  .card-title.purple { color:var(--purple); }
+  .card-title.purple::before { background:var(--purple); }
 
   /* ── 그리드 입력 ── */
   .settings-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .settings-grid-2 { display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
   .field { display:flex; flex-direction:column; gap:6px; }
   .field label { font-size:11px; color:var(--text-mid); letter-spacing:.5px; }
   .field input, .field select {
@@ -125,9 +119,7 @@
     font-size:14px; font-family:'Noto Sans KR',sans-serif;
     transition:border-color .2s, box-shadow .2s; outline:none; width:100%;
   }
-  .field input:focus, .field select:focus {
-    border-color:var(--accent); box-shadow:0 0 0 2px rgba(90,127,255,0.15);
-  }
+  .field input:focus { border-color:var(--accent); box-shadow:0 0 0 2px rgba(90,127,255,0.15); }
   .field input[readonly] { color:var(--text-mid); cursor:default; }
 
   /* ── 박스 설정 테이블 ── */
@@ -147,43 +139,28 @@
     background:var(--bg-input); border:1px solid var(--border);
     color:var(--text); border-radius:6px; padding:7px 8px;
     font-size:13px; font-family:'Noto Sans KR',sans-serif;
-    width:70px; text-align:center; outline:none;
-    transition:border-color .2s;
+    width:70px; text-align:center; outline:none; transition:border-color .2s;
   }
   .box-table input:focus { border-color:var(--accent); }
   .box-table input[readonly] { color:var(--text-mid); cursor:default; width:60px; }
-  .box-badge {
-    display:inline-flex; align-items:center; gap:6px;
-    font-size:13px; font-weight:500; white-space:nowrap;
-  }
+  .box-badge { display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:500; white-space:nowrap; }
   .dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
-  .dot-gold   { background:var(--gold);   box-shadow: 0 0 6px var(--gold); }
-  .dot-silver { background:var(--silver); box-shadow: 0 0 6px var(--silver); }
-  .dot-bronze { background:var(--bronze); box-shadow: 0 0 6px var(--bronze); }
+  .dot-gold   { background:var(--gold);   box-shadow:0 0 6px var(--gold); }
+  .dot-silver { background:var(--silver); box-shadow:0 0 6px var(--silver); }
+  .dot-bronze { background:var(--bronze); box-shadow:0 0 6px var(--bronze); }
 
   /* ── 교환소 테이블 ── */
-  .shop-toolbar {
-    display:flex; justify-content:space-between; align-items:center;
-    margin-bottom:12px;
-  }
-  .shop-total-badge {
-    font-size:12px; color:var(--text-mid);
-  }
+  .shop-toolbar { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .shop-total-badge { font-size:12px; color:var(--text-mid); }
   .shop-total-badge strong { color:var(--gold); font-size:15px; }
   .btn {
     padding:8px 16px; border-radius:7px; border:1px solid;
     font-size:12px; font-family:'Noto Sans KR',sans-serif;
     font-weight:500; cursor:pointer; transition:all .2s; letter-spacing:.3px;
   }
-  .btn-primary {
-    background:var(--accent-dim); border-color:var(--accent);
-    color:#fff;
-  }
+  .btn-primary { background:var(--accent-dim); border-color:var(--accent); color:#fff; }
   .btn-primary:hover { background:var(--accent); box-shadow:var(--glow-blue); }
-  .btn-danger {
-    background:transparent; border-color:#3a2020;
-    color:#e05a5a;
-  }
+  .btn-danger { background:transparent; border-color:#3a2020; color:#e05a5a; }
   .btn-danger:hover { background:#2a1010; border-color:var(--red); }
   .btn-sm { padding:5px 10px; font-size:11px; }
 
@@ -214,38 +191,32 @@
   .row-num { font-size:12px; color:var(--text-dim); text-align:center; }
   .sub-total { font-size:12px; color:var(--text-mid); text-align:right; padding-right:4px; }
 
-  /* ── 결과 섹션 ── */
+  /* ── 결과 카드 ── */
   .result-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
   .result-card {
-    background:var(--bg-card);
-    border:1px solid var(--border);
+    background:var(--bg-card); border:1px solid var(--border);
     border-radius:12px; padding:18px;
-    position:relative; overflow:hidden;
-    transition:border-color .3s;
+    position:relative; overflow:hidden; transition:border-color .3s;
   }
   .result-card::before {
-    content:''; position:absolute;
-    top:0; left:0; right:0; height:2px;
+    content:''; position:absolute; top:0; left:0; right:0; height:2px;
   }
-  .result-card.normal::before { background: linear-gradient(90deg, transparent, #4ecb8a, transparent); }
-  .result-card.hard::before   { background: linear-gradient(90deg, transparent, #5a7fff, transparent); }
-  .result-card.extreme::before { background: linear-gradient(90deg, transparent, #e05a5a, transparent); }
-  .result-card.normal { border-color:rgba(78,203,138,0.2); }
-  .result-card.hard   { border-color:rgba(90,127,255,0.2); }
+  .result-card.normal::before  { background:linear-gradient(90deg, transparent, #4ecb8a, transparent); }
+  .result-card.hard::before    { background:linear-gradient(90deg, transparent, #5a7fff, transparent); }
+  .result-card.extreme::before { background:linear-gradient(90deg, transparent, #e05a5a, transparent); }
+  .result-card.normal  { border-color:rgba(78,203,138,0.2); }
+  .result-card.hard    { border-color:rgba(90,127,255,0.2); }
   .result-card.extreme { border-color:rgba(224,90,90,0.2); }
 
   .diff-label {
-    font-family:'Rajdhani',sans-serif;
-    font-size:11px; font-weight:600; letter-spacing:3px;
-    text-transform:uppercase; margin-bottom:14px;
+    font-family:'Rajdhani',sans-serif; font-size:11px; font-weight:600;
+    letter-spacing:3px; text-transform:uppercase; margin-bottom:14px;
   }
   .result-card.normal  .diff-label { color:#4ecb8a; }
   .result-card.hard    .diff-label { color:#5a7fff; }
   .result-card.extreme .diff-label { color:#e05a5a; }
 
-  .target-day {
-    font-size:11px; color:var(--text-dim); margin-bottom:4px;
-  }
+  .target-day { font-size:11px; color:var(--text-dim); margin-bottom:4px; }
   .target-day input {
     background:var(--bg-input); border:1px solid var(--border);
     color:var(--text); border-radius:6px; padding:7px 10px;
@@ -263,7 +234,7 @@
   }
   .drop-label { display:flex; align-items:center; gap:7px; font-size:12px; color:var(--text-mid); }
   .drop-val { font-family:'Rajdhani',sans-serif; font-size:20px; font-weight:600; }
-  .drop-val.gold   { color:var(--gold);   text-shadow: var(--glow-gold); }
+  .drop-val.gold   { color:var(--gold);   text-shadow:var(--glow-gold); }
   .drop-val.silver { color:var(--silver); }
   .drop-val.bronze { color:var(--bronze); }
 
@@ -275,16 +246,13 @@
   }
   .ev-label { font-size:11px; color:var(--text-dim); letter-spacing:.5px; }
   .ev-val { font-family:'Rajdhani',sans-serif; font-size:14px; color:var(--accent); }
-  .days-row {
-    display:flex; justify-content:space-between; align-items:center;
-    margin-top:6px; padding:6px 12px;
-  }
+  .days-row { display:flex; justify-content:space-between; align-items:center; margin-top:6px; padding:6px 12px; }
   .days-label { font-size:11px; color:var(--text-dim); }
   .days-val { font-family:'Rajdhani',sans-serif; font-size:13px; }
-  .days-val.ok  { color:var(--green); }
+  .days-val.ok   { color:var(--green); }
   .days-val.over { color:var(--red); }
 
-  /* ── 통계 바 ── */
+  /* ── 바 차트 ── */
   .stat-bar { margin-top:22px; }
   .stat-bar-title { font-size:11px; color:var(--text-dim); margin-bottom:10px; letter-spacing:.5px; }
   .bar-row { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
@@ -298,51 +266,112 @@
 
   /* ── 섹션 구분 ── */
   .section-divider {
-    display:flex; align-items:center; gap:12px;
-    margin: 22px 0 16px;
+    display:flex; align-items:center; gap:12px; margin:22px 0 16px;
   }
   .section-divider span { font-size:11px; color:var(--text-dim); letter-spacing:1.5px; text-transform:uppercase; white-space:nowrap; }
-  .section-divider::before, .section-divider::after {
-    content:''; flex:1; height:1px; background:var(--border);
+  .section-divider::before, .section-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+  .section-divider.purple span { color:var(--purple); }
+  .section-divider.purple::before,
+  .section-divider.purple::after { background:rgba(168,85,247,0.3); }
+
+  /* ── 역할 배지 ── */
+  .role-badge {
+    display:inline-flex; align-items:center; gap:6px;
+    padding:4px 10px; border-radius:20px; font-size:11px; font-weight:600;
+    letter-spacing:1px; text-transform:uppercase; font-family:'Rajdhani',sans-serif;
+    margin-bottom:14px;
   }
+  .role-badge.host    { background:rgba(232,184,75,0.1);  border:1px solid rgba(232,184,75,0.3);  color:var(--gold); }
+  .role-badge.member  { background:rgba(168,85,247,0.1);  border:1px solid rgba(168,85,247,0.3);  color:var(--purple); }
+
+  /* ── 섬멸전 결과 카드 ── */
+  .anni-result-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:18px; }
+  .anni-card {
+    background:var(--bg-card); border:1px solid var(--border);
+    border-radius:12px; padding:18px; position:relative; overflow:hidden;
+  }
+  .anni-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+  .anni-card.normal::before  { background:linear-gradient(90deg, transparent, #4ecb8a, transparent); }
+  .anni-card.hard::before    { background:linear-gradient(90deg, transparent, #5a7fff, transparent); }
+  .anni-card.extreme::before { background:linear-gradient(90deg, transparent, #e05a5a, transparent); }
+  .anni-card.normal  { border-color:rgba(78,203,138,0.2); }
+  .anni-card.hard    { border-color:rgba(90,127,255,0.2); }
+  .anni-card.extreme { border-color:rgba(224,90,90,0.2); }
+
+  .anni-target-row {
+    display:flex; gap:10px; margin-bottom:14px;
+  }
+  .anni-target-box {
+    flex:1; background:var(--bg-input); border:1px solid var(--border);
+    border-radius:8px; padding:8px 10px;
+  }
+  .anni-target-box label { font-size:10px; color:var(--text-dim); display:block; margin-bottom:4px; }
+  .anni-target-box input {
+    background:transparent; border:none; color:var(--text);
+    font-size:15px; font-family:'Rajdhani',sans-serif; font-weight:600;
+    width:100%; outline:none; padding:0;
+  }
+
+  .anni-host-bonus {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:8px 12px; margin-bottom:10px;
+    background:rgba(232,184,75,0.07); border:1px solid rgba(232,184,75,0.2);
+    border-radius:8px;
+  }
+  .anni-host-bonus-label { font-size:11px; color:var(--gold); }
+  .anni-host-bonus-val {
+    font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:var(--gold);
+    text-shadow:var(--glow-gold);
+  }
+
+  .anni-stat-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:6px 10px; border-radius:7px; margin-bottom:6px;
+    background:var(--bg-input); border:1px solid var(--border);
+  }
+  .anni-stat-label { font-size:11px; color:var(--text-dim); }
+  .anni-stat-val   { font-family:'Rajdhani',sans-serif; font-size:13px; color:var(--text-mid); }
+  .anni-stat-val.ok   { color:var(--green); }
+  .anni-stat-val.over { color:var(--red); }
+
+  .anni-ev-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:7px 10px; margin-bottom:10px;
+    background:rgba(90,127,255,0.06); border:1px solid rgba(90,127,255,0.15);
+    border-radius:8px;
+  }
+  .anni-ev-label { font-size:11px; color:var(--text-dim); }
+  .anni-ev-val   { font-family:'Rajdhani',sans-serif; font-size:13px; color:var(--accent); }
+
+  @media(max-width:720px){ .anni-result-grid { grid-template-columns:1fr; } }
 
   /* ── 반응형 ── */
   @media(max-width:720px){
-    .result-grid { grid-template-columns:1fr; }
+    .result-grid, .combined-grid { grid-template-columns:1fr; }
     .settings-grid { grid-template-columns:repeat(2,1fr); }
   }
-  @media(max-width:500px){
-    .settings-grid { grid-template-columns:1fr; }
-  }
+  @media(max-width:500px){ .settings-grid { grid-template-columns:1fr; } }
 
-  /* ── 스크롤바 ── */
   ::-webkit-scrollbar { width:6px; height:6px; }
   ::-webkit-scrollbar-track { background:var(--bg-dark); }
   ::-webkit-scrollbar-thumb { background:var(--border-glow); border-radius:3px; }
 
-  /* ── 툴팁 ── */
-  [title] { cursor:help; }
-
-  .footer {
-    text-align:center; margin-top:40px;
-    font-size:11px; color:var(--text-dim); letter-spacing:1px;
-  }
+  .footer { text-align:center; margin-top:40px; font-size:11px; color:var(--text-dim); letter-spacing:1px; }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- 헤더 -->
   <header class="header">
     <div class="header-tag">Game Design Tool</div>
     <h1>보상 <span>밸런스</span> 툴</h1>
     <div class="header-sub">교환소 구성 입력 → 난이도별 드랍량 자동 계산</div>
   </header>
 
-  <!-- 탭 -->
   <div class="tabs">
-    <button class="tab-btn active" onclick="switchTab('shop')">교환소 구성</button>
-    <button class="tab-btn" onclick="switchTab('balance')">밸런스 계산</button>
+    <button class="tab-btn active"              onclick="switchTab('shop',this)">교환소 구성</button>
+    <button class="tab-btn"                     onclick="switchTab('balance',this)">1인 밸런스</button>
+    <button class="tab-btn tab-annihilation"    onclick="switchTab('annihilation',this)">섬멸전 밸런스</button>
   </div>
 
   <!-- ═══ 탭 1: 교환소 구성 ═══ -->
@@ -355,7 +384,7 @@
           <input type="number" id="s-period" value="30" min="1" oninput="calc()">
         </div>
         <div class="field">
-          <label>1일 플레이 횟수</label>
+          <label>1일 플레이 횟수 (1인)</label>
           <input type="number" id="s-plays" value="5" min="1" oninput="calc()">
         </div>
         <div class="field">
@@ -389,26 +418,18 @@
     </div>
   </div>
 
-  <!-- ═══ 탭 2: 밸런스 계산 ═══ -->
+  <!-- ═══ 탭 2: 1인 밸런스 ═══ -->
   <div id="tab-balance" class="tab-content">
-
     <div class="card">
       <div class="card-title">박스 확률 & 드랍 설정</div>
-      <table class="box-table">
+      <table class="box-table" id="box-solo">
         <thead>
-          <tr>
-            <th>상자</th>
-            <th>확률 (%)</th>
-            <th>최소 드랍</th>
-            <th>최대 드랍</th>
-            <th>기대 배율</th>
-            <th>은상자 대비 차이</th>
-          </tr>
+          <tr><th>상자</th><th>확률 (%)</th><th>최소 드랍</th><th>최대 드랍</th><th>기대 배율</th><th>은상자 대비 차이</th></tr>
         </thead>
         <tbody>
           <tr>
             <td><span class="box-badge"><span class="dot dot-gold"></span>금상자</span></td>
-            <td><input type="number" id="b-gp"  value="30" min="0" max="100" oninput="calc()"></td>
+            <td><input type="number" id="b-gp"   value="30" min="0" max="100" oninput="calc()"></td>
             <td><input type="number" id="b-gmin" value="1"  min="1" oninput="calc()"></td>
             <td><input type="number" id="b-gmax" value="1"  min="1" oninput="calc()"></td>
             <td><input type="number" id="b-gmult" readonly></td>
@@ -416,15 +437,15 @@
           </tr>
           <tr>
             <td><span class="box-badge"><span class="dot dot-silver"></span>은상자</span></td>
-            <td><input type="number" id="b-sp"  value="40" min="0" max="100" oninput="calc()"></td>
+            <td><input type="number" id="b-sp"   value="40" min="0" max="100" oninput="calc()"></td>
             <td><input type="number" id="b-smin" value="1"  min="1" oninput="calc()"></td>
             <td><input type="number" id="b-smax" value="1"  min="1" oninput="calc()"></td>
             <td><input type="number" id="b-smult" readonly></td>
-            <td style="color:var(--text-dim); font-size:12px; text-align:center;">(기준)</td>
+            <td style="color:var(--text-dim);font-size:12px;text-align:center;">(기준)</td>
           </tr>
           <tr>
             <td><span class="box-badge"><span class="dot dot-bronze"></span>동상자</span></td>
-            <td><input type="number" id="b-bp"  value="30" min="0" max="100" oninput="calc()"></td>
+            <td><input type="number" id="b-bp"   value="30" min="0" max="100" oninput="calc()"></td>
             <td><input type="number" id="b-bmin" value="1"  min="1" oninput="calc()"></td>
             <td><input type="number" id="b-bmax" value="1"  min="1" oninput="calc()"></td>
             <td><input type="number" id="b-bmult" readonly></td>
@@ -435,150 +456,95 @@
     </div>
 
     <div class="section-divider"><span>난이도별 결과</span></div>
+    <div class="result-grid" id="solo-results"></div>
+  </div>
 
-    <div class="result-grid">
-      <!-- Normal -->
-      <div class="result-card normal">
-        <div class="diff-label">Normal</div>
-        <div class="target-day">
-          목표 달성 일수
-          <input type="number" id="r-nday" value="13.6" step="0.1" min="0.1" oninput="calc()">
-        </div>
-        <div class="drop-list">
-          <div class="drop-row">
-            <div class="drop-label"><span class="dot dot-gold"></span>금상자</div>
-            <span class="drop-val gold" id="r-ng">—</span>
-          </div>
-          <div class="drop-row">
-            <div class="drop-label"><span class="dot dot-silver"></span>은상자</div>
-            <span class="drop-val silver" id="r-ns">—</span>
-          </div>
-          <div class="drop-row">
-            <div class="drop-label"><span class="dot dot-bronze"></span>동상자</div>
-            <span class="drop-val bronze" id="r-nb">—</span>
-          </div>
-        </div>
-        <div class="ev-row">
-          <span class="ev-label">기대 EV / 회</span>
-          <span class="ev-val" id="r-nev">—</span>
-        </div>
-        <div class="days-row">
-          <span class="days-label">예상 달성 일수</span>
-          <span class="days-val" id="r-ndays">—</span>
-        </div>
-        <div class="stat-bar">
-          <div class="stat-bar-title">드랍량 비율</div>
-          <div class="bar-row"><span class="bar-label">금</span><div class="bar-track"><div class="bar-fill gold" id="bar-ng" style="width:0%"></div></div><span class="bar-num" id="bv-ng"></span></div>
-          <div class="bar-row"><span class="bar-label">은</span><div class="bar-track"><div class="bar-fill silver" id="bar-ns" style="width:0%"></div></div><span class="bar-num" id="bv-ns"></span></div>
-          <div class="bar-row"><span class="bar-label">동</span><div class="bar-track"><div class="bar-fill bronze" id="bar-nb" style="width:0%"></div></div><span class="bar-num" id="bv-nb"></span></div>
-        </div>
-      </div>
+  <!-- ═══ 탭 3: 섬멸전 밸런스 ═══ -->
+  <div id="tab-annihilation" class="tab-content">
 
-      <!-- Hard -->
-      <div class="result-card hard">
-        <div class="diff-label">Hard</div>
-        <div class="target-day">
-          목표 달성 일수
-          <input type="number" id="r-hday" value="9.3" step="0.1" min="0.1" oninput="calc()">
+    <div class="card">
+      <div class="card-title purple">섬멸전 기본 설정</div>
+      <div class="settings-grid">
+        <div class="field">
+          <label>1일 섬멸전 횟수</label>
+          <input type="number" id="a-plays" value="3" min="1" oninput="calcAnnihilation()">
         </div>
-        <div class="drop-list">
-          <div class="drop-row">
-            <div class="drop-label"><span class="dot dot-gold"></span>금상자</div>
-            <span class="drop-val gold" id="r-hg">—</span>
-          </div>
-          <div class="drop-row">
-            <div class="drop-label"><span class="dot dot-silver"></span>은상자</div>
-            <span class="drop-val silver" id="r-hs">—</span>
-          </div>
-          <div class="drop-row">
-            <div class="drop-label"><span class="dot dot-bronze"></span>동상자</div>
-            <span class="drop-val bronze" id="r-hb">—</span>
-          </div>
+        <div class="field">
+          <label>교환소 총 필요 재화</label>
+          <input type="number" id="a-total" readonly placeholder="교환소 구성 탭에서 자동">
         </div>
-        <div class="ev-row">
-          <span class="ev-label">기대 EV / 회</span>
-          <span class="ev-val" id="r-hev">—</span>
-        </div>
-        <div class="days-row">
-          <span class="days-label">예상 달성 일수</span>
-          <span class="days-val" id="r-hdays">—</span>
-        </div>
-        <div class="stat-bar">
-          <div class="stat-bar-title">드랍량 비율</div>
-          <div class="bar-row"><span class="bar-label">금</span><div class="bar-track"><div class="bar-fill gold" id="bar-hg" style="width:0%"></div></div><span class="bar-num" id="bv-hg"></span></div>
-          <div class="bar-row"><span class="bar-label">은</span><div class="bar-track"><div class="bar-fill silver" id="bar-hs" style="width:0%"></div></div><span class="bar-num" id="bv-hs"></span></div>
-          <div class="bar-row"><span class="bar-label">동</span><div class="bar-track"><div class="bar-fill bronze" id="bar-hb" style="width:0%"></div></div><span class="bar-num" id="bv-hb"></span></div>
-        </div>
-      </div>
-
-      <!-- Extreme -->
-      <div class="result-card extreme">
-        <div class="diff-label">Extreme</div>
-        <div class="target-day">
-          목표 달성 일수
-          <input type="number" id="r-eday" value="7.2" step="0.1" min="0.1" oninput="calc()">
-        </div>
-        <div class="drop-list">
-          <div class="drop-row">
-            <div class="drop-label"><span class="dot dot-gold"></span>금상자</div>
-            <span class="drop-val gold" id="r-eg">—</span>
-          </div>
-          <div class="drop-row">
-            <div class="drop-label"><span class="dot dot-silver"></span>은상자</div>
-            <span class="drop-val silver" id="r-es">—</span>
-          </div>
-          <div class="drop-row">
-            <div class="drop-label"><span class="dot dot-bronze"></span>동상자</div>
-            <span class="drop-val bronze" id="r-eb">—</span>
-          </div>
-        </div>
-        <div class="ev-row">
-          <span class="ev-label">기대 EV / 회</span>
-          <span class="ev-val" id="r-eev">—</span>
-        </div>
-        <div class="days-row">
-          <span class="days-label">예상 달성 일수</span>
-          <span class="days-val" id="r-edays">—</span>
-        </div>
-        <div class="stat-bar">
-          <div class="stat-bar-title">드랍량 비율</div>
-          <div class="bar-row"><span class="bar-label">금</span><div class="bar-track"><div class="bar-fill gold" id="bar-eg" style="width:0%"></div></div><span class="bar-num" id="bv-eg"></span></div>
-          <div class="bar-row"><span class="bar-label">은</span><div class="bar-track"><div class="bar-fill silver" id="bar-es" style="width:0%"></div></div><span class="bar-num" id="bv-es"></span></div>
-          <div class="bar-row"><span class="bar-label">동</span><div class="bar-track"><div class="bar-fill bronze" id="bar-eb" style="width:0%"></div></div><span class="bar-num" id="bv-eb"></span></div>
+        <div class="field" style="justify-content:flex-end;">
+          <label style="font-size:10px; color:var(--text-dim); line-height:1.5;">
+            방장 보상은 플레이당 고정 재화<br>박스 드랍과 별도 지급
+          </label>
         </div>
       </div>
     </div>
+
+    <!-- 박스 드랍 설정 (방장/참여자 공통) -->
+    <div class="card">
+      <div class="card-title purple">박스 드랍 설정 <span style="font-size:11px;color:var(--text-dim);font-family:'Noto Sans KR';font-weight:400;text-transform:none;letter-spacing:0">&nbsp;— 방장 · 참여자 공통</span></div>
+      <table class="box-table">
+        <thead>
+          <tr><th>상자</th><th>확률 (%)</th><th>최소 드랍</th><th>최대 드랍</th><th>기대 배율</th><th>은상자 대비 차이</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="box-badge"><span class="dot dot-gold"></span>금상자</span></td>
+            <td><input type="number" id="an-gp"   value="30" min="0" max="100" oninput="calcAnnihilation()"></td>
+            <td><input type="number" id="an-gmin" value="1"  min="1" oninput="calcAnnihilation()"></td>
+            <td><input type="number" id="an-gmax" value="1"  min="1" oninput="calcAnnihilation()"></td>
+            <td><input type="number" id="an-gmult" readonly></td>
+            <td><input type="number" id="an-gdiff" value="10" min="0" oninput="calcAnnihilation()"></td>
+          </tr>
+          <tr>
+            <td><span class="box-badge"><span class="dot dot-silver"></span>은상자</span></td>
+            <td><input type="number" id="an-sp"   value="40" min="0" max="100" oninput="calcAnnihilation()"></td>
+            <td><input type="number" id="an-smin" value="1"  min="1" oninput="calcAnnihilation()"></td>
+            <td><input type="number" id="an-smax" value="1"  min="1" oninput="calcAnnihilation()"></td>
+            <td><input type="number" id="an-smult" readonly></td>
+            <td style="color:var(--text-dim);font-size:12px;text-align:center;">(기준)</td>
+          </tr>
+          <tr>
+            <td><span class="box-badge"><span class="dot dot-bronze"></span>동상자</span></td>
+            <td><input type="number" id="an-bp"   value="30" min="0" max="100" oninput="calcAnnihilation()"></td>
+            <td><input type="number" id="an-bmin" value="1"  min="1" oninput="calcAnnihilation()"></td>
+            <td><input type="number" id="an-bmax" value="1"  min="1" oninput="calcAnnihilation()"></td>
+            <td><input type="number" id="an-bmult" readonly></td>
+            <td><input type="number" id="an-bdiff" value="10" min="0" oninput="calcAnnihilation()"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 난이도별 결과 -->
+    <div class="section-divider purple"><span>난이도별 결과</span></div>
+    <div class="anni-result-grid" id="anni-results"></div>
+
   </div>
 
   <div class="footer">일곱개의 대죄 GRAND CROSS &nbsp;·&nbsp; Game Design Tool</div>
 </div>
 
 <script>
-// ── 초기 아이템 데이터 ──
+// ── 교환소 ──
 const defaultItems = [
   { name:'아이템 1', cost:50,  qty:3  },
   { name:'아이템 2', cost:30,  qty:5  },
   { name:'아이템 3', cost:100, qty:1  },
   { name:'아이템 4', cost:20,  qty:10 },
 ];
-
-let items = [];
-let itemId = 0;
+let items = [], itemId = 0;
 
 function addItem(name='', cost='', qty='') {
-  const id = ++itemId;
-  items.push({ id, name, cost, qty });
-  renderShop();
-  calc();
+  items.push({ id:++itemId, name, cost, qty });
+  renderShop(); calc();
 }
-
 function removeItem(id) {
   if (items.length <= 1) return;
   items = items.filter(i => i.id !== id);
-  renderShop();
-  calc();
+  renderShop(); calc();
 }
-
 function renderShop() {
   const tbody = document.getElementById('shop-tbody');
   tbody.innerHTML = '';
@@ -595,105 +561,242 @@ function renderShop() {
       </tr>`;
   });
 }
-
 function updateItem(id, key, val) {
   const item = items.find(i => i.id === id);
   if (item) { item[key] = val; calc(); }
-  // re-render sub-totals
-  const tbody = document.getElementById('shop-tbody');
-  const rows = tbody.querySelectorAll('tr');
+  const rows = document.getElementById('shop-tbody').querySelectorAll('tr');
   items.forEach((it, idx) => {
-    const sub = (Number(it.cost)||0) * (Number(it.qty)||0);
+    const sub = (Number(it.cost)||0)*(Number(it.qty)||0);
     rows[idx].querySelectorAll('.sub-total')[0].textContent = sub > 0 ? sub.toLocaleString() : '—';
   });
 }
-
 function totalRequired() {
   return items.reduce((s, i) => s + (Number(i.cost)||0)*(Number(i.qty)||0), 0);
 }
 
-// ── 메인 계산 ──
-function calc() {
-  const total  = totalRequired();
-  const period = Number(document.getElementById('s-period').value) || 30;
-  const plays  = Number(document.getElementById('s-plays').value)  || 5;
-
-  document.getElementById('s-total').value      = total.toLocaleString();
-  document.getElementById('total-display').textContent = total.toLocaleString();
-
-  // 박스 파라미터
-  const gp   = (Number(document.getElementById('b-gp').value)   || 0) / 100;
-  const sp   = (Number(document.getElementById('b-sp').value)   || 0) / 100;
-  const bp   = (Number(document.getElementById('b-bp').value)   || 0) / 100;
-  const gmin = Number(document.getElementById('b-gmin').value)  || 1;
-  const gmax = Number(document.getElementById('b-gmax').value)  || 1;
-  const smin = Number(document.getElementById('b-smin').value)  || 1;
-  const smax = Number(document.getElementById('b-smax').value)  || 1;
-  const bmin = Number(document.getElementById('b-bmin').value)  || 1;
-  const bmax = Number(document.getElementById('b-bmax').value)  || 1;
+// ── 박스 파라미터 읽기 ──
+function getBoxParams(pfx) {
+  const gp   = (Number(document.getElementById(`${pfx}-gp`).value)   || 0) / 100;
+  const sp   = (Number(document.getElementById(`${pfx}-sp`).value)   || 0) / 100;
+  const bp   = (Number(document.getElementById(`${pfx}-bp`).value)   || 0) / 100;
+  const gmin = Number(document.getElementById(`${pfx}-gmin`).value)  || 1;
+  const gmax = Number(document.getElementById(`${pfx}-gmax`).value)  || 1;
+  const smin = Number(document.getElementById(`${pfx}-smin`).value)  || 1;
+  const smax = Number(document.getElementById(`${pfx}-smax`).value)  || 1;
+  const bmin = Number(document.getElementById(`${pfx}-bmin`).value)  || 1;
+  const bmax = Number(document.getElementById(`${pfx}-bmax`).value)  || 1;
   const gm   = (gmin + gmax) / 2;
   const sm   = (smin + smax) / 2;
   const bm   = (bmin + bmax) / 2;
-  const gdiff = Number(document.getElementById('b-gdiff').value) || 0;
-  const bdiff = Number(document.getElementById('b-bdiff').value) || 0;
+  const gdiff = Number(document.getElementById(`${pfx}-gdiff`).value) || 0;
+  const bdiff = Number(document.getElementById(`${pfx}-bdiff`).value) || 0;
+  document.getElementById(`${pfx}-gmult`).value = gm.toFixed(1);
+  document.getElementById(`${pfx}-smult`).value = sm.toFixed(1);
+  document.getElementById(`${pfx}-bmult`).value = bm.toFixed(1);
+  return { gp, sp, bp, gm, sm, bm, gdiff, bdiff };
+}
 
-  document.getElementById('b-gmult').value = gm.toFixed(1);
-  document.getElementById('b-smult').value = sm.toFixed(1);
-  document.getElementById('b-bmult').value = bm.toFixed(1);
+// ── 드랍량 역산 ──
+function calcDrops(total, plays, targetDays, box) {
+  const { gp, sp, bp, gm, sm, bm, gdiff, bdiff } = box;
+  const requiredEV = total / (targetDays * plays);
+  const denom = gp*gm + sp*sm + bp*bm;
+  let silver = denom > 0 ? (requiredEV - gdiff*gp*gm + bdiff*bp*bm) / denom : 0;
+  silver = Math.round(silver);
+  const gold   = silver + gdiff;
+  const bronze = Math.max(0, silver - bdiff);
+  const ev     = Math.round((gold*gp*gm + silver*sp*sm + bronze*bp*bm) * 10) / 10;
+  const actualDays = ev > 0 ? Math.round(total / (ev * plays) * 10) / 10 : 0;
+  return { gold, silver, bronze, ev, actualDays };
+}
 
-  // 각 난이도 계산
-  const diffs = [
-    { day: 'r-nday', pfx: 'n' },
-    { day: 'r-hday', pfx: 'h' },
-    { day: 'r-eday', pfx: 'e' },
+// ── 결과 카드 HTML 생성 ──
+function makeResultCards(containerId, dayIds, pfxList, calcFn) {
+  const DIFFS = [
+    { cls:'normal',  label:'Normal',  color:'#4ecb8a' },
+    { cls:'hard',    label:'Hard',    color:'#5a7fff' },
+    { cls:'extreme', label:'Extreme', color:'#e05a5a' },
   ];
+  const container = document.getElementById(containerId);
 
-  diffs.forEach(({ day, pfx }) => {
-    const targetDays = Number(document.getElementById(day).value) || 1;
-    const requiredEV = total / (targetDays * plays);
+  // 초기 HTML 생성 (최초 1회)
+  if (!container.dataset.init) {
+    container.dataset.init = '1';
+    container.innerHTML = DIFFS.map((d, i) => `
+      <div class="result-card ${d.cls}">
+        <div class="diff-label">${d.label}</div>
+        <div class="target-day">목표 달성 일수
+          <input type="number" id="${dayIds[i]}" value="${[13.6,9.3,7.2][i]}" step="0.1" min="0.1" oninput="${calcFn}()">
+        </div>
+        <div class="drop-list">
+          <div class="drop-row"><div class="drop-label"><span class="dot dot-gold"></span>금상자</div><span class="drop-val gold" id="${containerId}-g${i}">—</span></div>
+          <div class="drop-row"><div class="drop-label"><span class="dot dot-silver"></span>은상자</div><span class="drop-val silver" id="${containerId}-s${i}">—</span></div>
+          <div class="drop-row"><div class="drop-label"><span class="dot dot-bronze"></span>동상자</div><span class="drop-val bronze" id="${containerId}-b${i}">—</span></div>
+        </div>
+        <div class="ev-row">
+          <span class="ev-label">기대 EV / 회</span>
+          <span class="ev-val" id="${containerId}-ev${i}">—</span>
+        </div>
+        <div class="days-row">
+          <span class="days-label">예상 달성 일수</span>
+          <span class="days-val" id="${containerId}-days${i}">—</span>
+        </div>
+        <div class="stat-bar">
+          <div class="stat-bar-title">드랍량 비율</div>
+          <div class="bar-row"><span class="bar-label">금</span><div class="bar-track"><div class="bar-fill gold" id="${containerId}-bg${i}" style="width:0%"></div></div><span class="bar-num" id="${containerId}-bvg${i}"></span></div>
+          <div class="bar-row"><span class="bar-label">은</span><div class="bar-track"><div class="bar-fill silver" id="${containerId}-bs${i}" style="width:0%"></div></div><span class="bar-num" id="${containerId}-bvs${i}"></span></div>
+          <div class="bar-row"><span class="bar-label">동</span><div class="bar-track"><div class="bar-fill bronze" id="${containerId}-bb${i}" style="width:0%"></div></div><span class="bar-num" id="${containerId}-bvb${i}"></span></div>
+        </div>
+      </div>`).join('');
+  }
+}
 
-    // silver 역산: EV = silver*(gp*gm + sp*sm + bp*bm) + gdiff*gp*gm - bdiff*bp*bm
-    const denom = gp*gm + sp*sm + bp*bm;
-    let silver = 0;
-    if (denom > 0) {
-      silver = (requiredEV - gdiff*gp*gm + bdiff*bp*bm) / denom;
-    }
-    silver = Math.round(silver);
-
-    const gold   = silver + gdiff;
-    const bronze = Math.max(0, silver - bdiff);
-    const ev     = Math.round((gold*gp*gm + silver*sp*sm + bronze*bp*bm) * 10) / 10;
-    const actualDays = ev > 0 ? Math.round(total / (ev * plays) * 10) / 10 : 0;
-
-    document.getElementById(`r-${pfx}g`).textContent     = gold;
-    document.getElementById(`r-${pfx}s`).textContent     = silver;
-    document.getElementById(`r-${pfx}b`).textContent     = bronze;
-    document.getElementById(`r-${pfx}ev`).textContent    = ev;
-    const daysEl = document.getElementById(`r-${pfx}days`);
+function updateResultCards(containerId, dayIds, total, plays, box) {
+  for (let i = 0; i < 3; i++) {
+    const targetDays = Number(document.getElementById(dayIds[i]).value) || 1;
+    const { gold, silver, bronze, ev, actualDays } = calcDrops(total, plays, targetDays, box);
+    document.getElementById(`${containerId}-g${i}`).textContent = gold;
+    document.getElementById(`${containerId}-s${i}`).textContent = silver;
+    document.getElementById(`${containerId}-b${i}`).textContent = bronze;
+    document.getElementById(`${containerId}-ev${i}`).textContent = ev;
+    const daysEl = document.getElementById(`${containerId}-days${i}`);
     daysEl.textContent = actualDays + '일';
-    daysEl.className   = 'days-val ' + (actualDays <= targetDays ? 'ok' : 'over');
+    daysEl.className = 'days-val ' + (actualDays <= targetDays ? 'ok' : 'over');
+    const mx = gold || 1;
+    document.getElementById(`${containerId}-bg${i}`).style.width = (gold/mx*100)+'%';
+    document.getElementById(`${containerId}-bs${i}`).style.width = (silver/mx*100)+'%';
+    document.getElementById(`${containerId}-bb${i}`).style.width = (bronze/mx*100)+'%';
+    document.getElementById(`${containerId}-bvg${i}`).textContent = gold;
+    document.getElementById(`${containerId}-bvs${i}`).textContent = silver;
+    document.getElementById(`${containerId}-bvb${i}`).textContent = bronze;
+  }
+}
 
-    // 바 차트
-    const maxVal = gold || 1;
-    document.getElementById(`bar-${pfx}g`).style.width = (gold/maxVal*100) + '%';
-    document.getElementById(`bar-${pfx}s`).style.width = (silver/maxVal*100) + '%';
-    document.getElementById(`bar-${pfx}b`).style.width = (bronze/maxVal*100) + '%';
-    document.getElementById(`bv-${pfx}g`).textContent = gold;
-    document.getElementById(`bv-${pfx}s`).textContent = silver;
-    document.getElementById(`bv-${pfx}b`).textContent = bronze;
-  });
+// ── 1인 밸런스 계산 ──
+const SOLO_DAY_IDS = ['sd-n','sd-h','sd-e'];
+function calc() {
+  const total = totalRequired();
+  const plays = Number(document.getElementById('s-plays').value) || 5;
+  document.getElementById('s-total').value = total.toLocaleString();
+  document.getElementById('total-display').textContent = total.toLocaleString();
+
+  makeResultCards('solo-results', SOLO_DAY_IDS, 'calc');
+  const box = getBoxParams('b');
+  updateResultCards('solo-results', SOLO_DAY_IDS, total, plays, box);
+  calcAnnihilation();
+}
+
+// ── 섬멸전 계산 ──
+// 구조: 방장/참여자 공통 박스드랍 + 방장 고정보상 별도
+// 참여자 목표일수 → 박스 드랍량 역산
+// 방장 목표일수  → 방장 고정보상 역산 (= 방장 필요EV - 박스EV)
+
+const ANNI_DIFFS = [
+  { cls:'normal',  label:'Normal',  hostDefault:12.6, memberDefault:32.1 },
+  { cls:'hard',    label:'Hard',    hostDefault:9.9,  memberDefault:23.4 },
+  { cls:'extreme', label:'Extreme', hostDefault:7.0,  memberDefault:15.1 },
+];
+
+function initAnniResults() {
+  const container = document.getElementById('anni-results');
+  if (container.dataset.init) return;
+  container.dataset.init = '1';
+  container.innerHTML = ANNI_DIFFS.map((d, i) => `
+    <div class="anni-card ${d.cls}">
+      <div class="diff-label">${d.label}</div>
+
+      <div class="anni-target-row">
+        <div class="anni-target-box">
+          <label>방장 목표 일수</label>
+          <input type="number" id="an-hday${i}" value="${d.hostDefault}" step="0.1" min="0.1" oninput="calcAnnihilation()">
+        </div>
+        <div class="anni-target-box">
+          <label>참여자 목표 일수</label>
+          <input type="number" id="an-mday${i}" value="${d.memberDefault}" step="0.1" min="0.1" oninput="calcAnnihilation()">
+        </div>
+      </div>
+
+      <div class="anni-host-bonus">
+        <span class="anni-host-bonus-label">방장 고정 보상 / 회</span>
+        <span class="anni-host-bonus-val" id="an-hbonus${i}">—</span>
+      </div>
+
+      <div class="anni-ev-row">
+        <span class="anni-ev-label">박스 드랍 기대값 (방장·참여자 공통)</span>
+        <span class="anni-ev-val" id="an-ev${i}">—</span>
+      </div>
+
+      <div class="drop-list" style="margin-bottom:10px">
+        <div class="drop-row"><div class="drop-label"><span class="dot dot-gold"></span>금상자 드랍량</div><span class="drop-val gold" id="an-g${i}">—</span></div>
+        <div class="drop-row"><div class="drop-label"><span class="dot dot-silver"></span>은상자 드랍량</div><span class="drop-val silver" id="an-s${i}">—</span></div>
+        <div class="drop-row"><div class="drop-label"><span class="dot dot-bronze"></span>동상자 드랍량</div><span class="drop-val bronze" id="an-b${i}">—</span></div>
+      </div>
+
+      <div class="anni-stat-row">
+        <span class="anni-stat-label">방장 플레이 시 필요 횟수 / 일수</span>
+        <span class="anni-stat-val" id="an-hstat${i}">—</span>
+      </div>
+      <div class="anni-stat-row">
+        <span class="anni-stat-label">참여자만 플레이 시 필요 횟수 / 일수</span>
+        <span class="anni-stat-val" id="an-mstat${i}">—</span>
+      </div>
+    </div>`).join('');
+}
+
+function calcAnnihilation() {
+  const total = totalRequired();
+  const plays = Number(document.getElementById('a-plays').value) || 3;
+  document.getElementById('a-total').value = total.toLocaleString();
+
+  initAnniResults();
+  const box = getBoxParams('an');
+
+  for (let i = 0; i < 3; i++) {
+    const hostTargetDays   = Number(document.getElementById(`an-hday${i}`).value) || 1;
+    const memberTargetDays = Number(document.getElementById(`an-mday${i}`).value) || 1;
+
+    // 참여자 목표 일수로 박스 드랍량 역산
+    const { gold, silver, bronze, ev: boxEV } = calcDrops(total, plays, memberTargetDays, box);
+
+    // 방장 필요 총EV = total / (hostTargetDays * plays)
+    // 방장 고정보상 = 방장 필요EV - 박스EV (소수점 1자리 반올림)
+    const hostNeededEV = total / (hostTargetDays * plays);
+    const hostBonus    = Math.round((hostNeededEV - boxEV) * 10) / 10;
+
+    // 실제 필요 횟수 / 일수
+    const hostTotalEV     = boxEV + hostBonus;
+    const hostNeededPlays = hostTotalEV > 0 ? Math.round(total / hostTotalEV * 10) / 10 : 0;
+    const hostNeededDays  = plays > 0 ? Math.round(hostNeededPlays / plays * 10) / 10 : 0;
+
+    const memberNeededPlays = boxEV > 0 ? Math.round(total / boxEV * 10) / 10 : 0;
+    const memberNeededDays  = plays > 0 ? Math.round(memberNeededPlays / plays * 10) / 10 : 0;
+
+    document.getElementById(`an-g${i}`).textContent      = gold;
+    document.getElementById(`an-s${i}`).textContent      = silver;
+    document.getElementById(`an-b${i}`).textContent      = bronze;
+    document.getElementById(`an-ev${i}`).textContent     = boxEV;
+    document.getElementById(`an-hbonus${i}`).textContent = hostBonus >= 0 ? hostBonus : '—';
+
+    const hstat = document.getElementById(`an-hstat${i}`);
+    hstat.textContent = `${hostNeededPlays} / ${hostNeededDays}일`;
+    hstat.className   = 'anni-stat-val ' + (hostNeededDays <= hostTargetDays ? 'ok' : 'over');
+
+    const mstat = document.getElementById(`an-mstat${i}`);
+    mstat.textContent = `${memberNeededPlays} / ${memberNeededDays}일`;
+    mstat.className   = 'anni-stat-val ' + (memberNeededDays <= memberTargetDays ? 'ok' : 'over');
+  }
 }
 
 // ── 탭 전환 ──
-function switchTab(tab) {
+function switchTab(tab, btn) {
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
-  event.target.classList.add('active');
+  btn.classList.add('active');
 }
 
 // ── 초기화 ──
-defaultItems.forEach(i => { const id = ++itemId; items.push({id, ...i}); });
+defaultItems.forEach(i => { items.push({id:++itemId, ...i}); });
 renderShop();
 calc();
 </script>
