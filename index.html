@@ -881,28 +881,33 @@ function parsePaste() {
   const rows = raw.split('\n').map(r => r.split('\t'));
   if (rows.length === 0) return;
 
-  // 헤더 행 찾기 (아이템 이름/요구량/수량 키워드)
-  const NAME_KEYS  = ['이름', '아이템명', '보상 아이템'];
-  const COST_KEYS  = ['요구량', '교환 비용', '비용'];
-  const QTY_KEYS   = ['총 수량', '수량', '개수'];
-
   let nameCol = -1, costCol = -1, qtyCol = -1;
   let dataStartRow = 0;
 
-  // 헤더 행 탐색
+  // 헤더 행 탐색 — 우선순위: 완전일치 > 포함일치
+  // "1회 교환 시 지급 수량", "총 요구 수량" 같은 혼동 컬럼 제외
   for (let ri = 0; ri < Math.min(rows.length, 5); ri++) {
     const row = rows[ri];
-    let foundName = false, foundCost = false, foundQty = false;
+    let found = false;
     row.forEach((cell, ci) => {
       const v = (cell || '').trim();
-      if (NAME_KEYS.some(k => v.includes(k))) { nameCol = ci; foundName = true; }
-      if (COST_KEYS.some(k => v.includes(k))) { costCol = ci; foundCost = true; }
-      if (QTY_KEYS.some(k => v.includes(k)))  { qtyCol  = ci; foundQty  = true; }
+      // 아이템 이름 컬럼: "이름" 포함, "ID" 미포함
+      if (nameCol === -1 && (v.includes('이름') || v.includes('아이템명')) && !v.includes('ID') && !v.includes('id')) {
+        nameCol = ci; found = true;
+      }
+      // 요구량 컬럼: "요구량" 포함, "총 요구" 미포함
+      if (costCol === -1 && v.includes('요구량') && !v.includes('총 요구')) {
+        costCol = ci; found = true;
+      }
+      // 총 수량 컬럼: "총 수량" 포함, "요구" 미포함, "지급" 미포함
+      if (qtyCol === -1 && v.includes('총 수량') && !v.includes('요구') && !v.includes('지급')) {
+        qtyCol = ci; found = true;
+      }
     });
-    if (foundName || foundCost || foundQty) { dataStartRow = ri + 1; break; }
+    if (found) { dataStartRow = ri + 1; break; }
   }
 
-  // 헤더 못 찾으면 컬럼 위치 기본값 추정 (이름=1, 수량=4, 요구량=6 — 이미지 기준)
+  // 헤더 못 찾으면 이미지 기준 기본값 (이름=1, 총수량=4, 요구량=6)
   if (nameCol === -1) nameCol = 1;
   if (qtyCol  === -1) qtyCol  = 4;
   if (costCol === -1) costCol = 6;
