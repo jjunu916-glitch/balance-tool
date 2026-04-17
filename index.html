@@ -459,8 +459,8 @@
   <!-- ═══ 탭 2: 1인 밸런스 ═══ -->
   <div id="tab-balance" class="tab-content">
     <div class="card">
-      <div class="card-title">교환 재화 필터 & 가중치 설정</div>
-      <div class="settings-grid" style="align-items:start">
+      <div class="card-title">교환 재화 필터</div>
+      <div class="settings-grid-2" style="align-items:start">
         <div class="field">
           <label>교환 재화 ID <span style="color:var(--text-dim);font-weight:400">(비우면 전체 합산)</span></label>
           <input type="text" id="b-currency" placeholder="예: 912360" oninput="calc()" style="letter-spacing:1px">
@@ -472,11 +472,6 @@
             <span style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--gold);text-shadow:var(--glow-gold)" id="b-filtered-total">—</span>
             <span style="font-size:11px;color:var(--text-dim)">재화</span>
           </div>
-        </div>
-        <div class="field">
-          <label>가중치 max 추가 재화 <span style="color:var(--text-dim);font-weight:400">/ 회</span></label>
-          <input type="number" id="b-weight-bonus" placeholder="0" min="0" value="0" oninput="calc()" style="letter-spacing:1px">
-          <span style="font-size:10px;color:var(--text-dim);margin-top:4px">※ 가중치 7단계 도달 시 플레이당 고정 추가 보상</span>
         </div>
       </div>
     </div>
@@ -755,6 +750,9 @@ function makeResultCards(containerId, dayIds, pfxList, calcFn) {
         <div class="target-day">목표 달성 일수
           <input type="number" id="${dayIds[i]}" value="${[13.6,9.3,7.2][i]}" step="0.1" min="0.1" oninput="${calcFn}()">
         </div>
+        <div class="target-day" style="margin-top:8px;color:var(--green)">가중치 max 추가 재화/회
+          <input type="number" id="${containerId}-wb${i}" value="0" step="1" min="0" oninput="${calcFn}()" style="width:72px;border-color:rgba(78,203,138,0.3)">
+        </div>
         <div class="drop-list">
           <div class="drop-row"><div class="drop-label"><span class="dot dot-gold"></span>금상자</div><span class="drop-val gold" id="${containerId}-g${i}">—</span></div>
           <div class="drop-row"><div class="drop-label"><span class="dot dot-silver"></span>은상자</div><span class="drop-val silver" id="${containerId}-s${i}">—</span></div>
@@ -782,9 +780,11 @@ function makeResultCards(containerId, dayIds, pfxList, calcFn) {
   }
 }
 
-function updateResultCards(containerId, dayIds, total, plays, box, bonusPerPlay = 0) {
+function updateResultCards(containerId, dayIds, total, plays, box) {
   for (let i = 0; i < 3; i++) {
-    const targetDays = Number(document.getElementById(dayIds[i]).value) || 1;
+    const targetDays   = Number(document.getElementById(dayIds[i]).value) || 1;
+    const wbEl         = document.getElementById(`${containerId}-wb${i}`);
+    const bonusPerPlay = wbEl ? (Number(wbEl.value) || 0) : 0;
     const { gold, silver, bronze, ev, totalEV, actualDays } = calcDrops(total, plays, targetDays, box, bonusPerPlay);
     document.getElementById(`${containerId}-g${i}`).textContent = gold;
     document.getElementById(`${containerId}-s${i}`).textContent = silver;
@@ -816,9 +816,8 @@ function updateResultCards(containerId, dayIds, total, plays, box, bonusPerPlay 
 // ── 1인 밸런스 계산 ──
 const SOLO_DAY_IDS = ['sd-n','sd-h','sd-e'];
 function calc() {
-  const currencyId   = (document.getElementById('b-currency') ? document.getElementById('b-currency').value : '');
-  const weightBonus  = Number(document.getElementById('b-weight-bonus') ? document.getElementById('b-weight-bonus').value : 0) || 0;
-  const total        = totalRequiredByID(currencyId);
+  const currencyId = (document.getElementById('b-currency') ? document.getElementById('b-currency').value : '');
+  const total      = totalRequiredByID(currencyId);
   const totalAll     = totalRequired();
   const plays        = Number(document.getElementById('s-plays').value) || 5;
 
@@ -831,7 +830,7 @@ function calc() {
 
   makeResultCards('solo-results', SOLO_DAY_IDS, 'calc');
   const box = getBoxParams('b');
-  updateResultCards('solo-results', SOLO_DAY_IDS, total, plays, box, weightBonus);
+  updateResultCards('solo-results', SOLO_DAY_IDS, total, plays, box);
   calcAnnihilation();
 }
 
