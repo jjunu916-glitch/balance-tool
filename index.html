@@ -543,13 +543,13 @@
           <input type="number" id="a-plays" value="3" min="1" oninput="calcAnnihilation()">
         </div>
         <div class="field">
-          <label>교환소 총 필요 재화</label>
-          <input type="number" id="a-total" readonly placeholder="교환소 구성 탭에서 자동">
+          <label>참여자 달성 일수 배율 <span style="color:var(--text-dim);font-weight:400">(방장 대비)</span></label>
+          <input type="number" id="a-member-ratio" value="2.5" step="0.1" min="1.0" oninput="calcAnnihilation()">
+          <span style="font-size:10px;color:var(--text-dim);margin-top:4px">참여자 목표 일수 = 방장 목표 일수 × 배율</span>
         </div>
-        <div class="field" style="justify-content:flex-end;">
-          <label style="font-size:10px; color:var(--text-dim); line-height:1.5;">
-            방장 보상은 플레이당 고정 재화<br>박스 드랍과 별도 지급
-          </label>
+        <div class="field">
+          <label>교환소 총 필요 재화</label>
+          <input type="number" id="a-total" readonly placeholder="자동">
         </div>
       </div>
     </div>
@@ -857,14 +857,12 @@ function calc() {
 }
 
 // ── 섬멸전 계산 ──
-// 구조: 방장/참여자 공통 박스드랍 + 방장 고정보상 별도
-// 참여자 목표일수 → 박스 드랍량 역산
-// 방장 목표일수  → 방장 고정보상 역산 (= 방장 필요EV - 박스EV)
+// 구조: 방장 목표 일수 + 방장 고정보상(입력) → 박스 드랍량 역산 → 참여자 달성 일수 자동 계산
 
 const ANNI_DIFFS = [
-  { cls:'normal',  label:'Normal',  hostDefault:12.6, memberDefault:32.1 },
-  { cls:'hard',    label:'Hard',    hostDefault:9.9,  memberDefault:23.4 },
-  { cls:'extreme', label:'Extreme', hostDefault:7.0,  memberDefault:15.1 },
+  { cls:'normal',  label:'Normal',  hostDefault:12.6 },
+  { cls:'hard',    label:'Hard',    hostDefault:9.9  },
+  { cls:'extreme', label:'Extreme', hostDefault:7.0  },
 ];
 
 function initAnniResults() {
@@ -880,14 +878,14 @@ function initAnniResults() {
           <label>방장 목표 일수</label>
           <input type="number" id="an-hday${i}" value="${d.hostDefault}" step="0.1" min="0.1" oninput="calcAnnihilation()">
         </div>
-        <div class="anni-target-box">
-          <label>참여자 목표 일수</label>
-          <input type="number" id="an-mday${i}" value="${d.memberDefault}" step="0.1" min="0.1" oninput="calcAnnihilation()">
+        <div class="anni-target-box" style="background:rgba(168,85,247,0.05);border-color:rgba(168,85,247,0.25)">
+          <label style="color:var(--purple)">참여자 목표 일수 <span style="font-size:10px;font-weight:400">(자동)</span></label>
+          <span style="font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:600;color:var(--purple)" id="an-mday-display${i}">—</span>
         </div>
       </div>
 
       <div class="anni-host-bonus">
-        <span class="anni-host-bonus-label">방장 고정 보상 / 회</span>
+        <span class="anni-host-bonus-label">방장 고정 보상 / 회 <span style="font-size:10px;font-weight:400;color:var(--gold)">(자동)</span></span>
         <span class="anni-host-bonus-val" id="an-hbonus${i}">—</span>
       </div>
 
@@ -903,20 +901,20 @@ function initAnniResults() {
       </div>
 
       <div class="anni-stat-row">
-        <span class="anni-stat-label">방장 플레이 시 필요 횟수 / 일수</span>
+        <span class="anni-stat-label">방장 예상 달성 일수</span>
         <span class="anni-stat-val" id="an-hstat${i}">—</span>
       </div>
-      <div class="anni-stat-row">
-        <span class="anni-stat-label">참여자만 플레이 시 필요 횟수 / 일수</span>
+      <div class="anni-stat-row" style="background:rgba(168,85,247,0.06);border-color:rgba(168,85,247,0.25)">
+        <span class="anni-stat-label" style="color:var(--purple)">참여자 예상 달성 일수</span>
         <span class="anni-stat-val" id="an-mstat${i}">—</span>
       </div>
     </div>`).join('');
 }
 
 function calcAnnihilation() {
-  const currencyId  = (document.getElementById('a-currency') ? document.getElementById('a-currency').value : '');
-  const total       = totalRequiredByID(currencyId);
-  const plays       = Number(document.getElementById('a-plays').value) || 3;
+  const currencyId = (document.getElementById('a-currency') ? document.getElementById('a-currency').value : '');
+  const total      = totalRequiredByID(currencyId);
+  const plays      = Number(document.getElementById('a-plays').value) || 3;
   document.getElementById('a-total').value = total.toLocaleString();
 
   // 섬멸전 탭 내 필터링 합산 표시
@@ -925,42 +923,41 @@ function calcAnnihilation() {
 
   initAnniResults();
   const box = getBoxParams('an');
+  const memberRatio = Number(document.getElementById('a-member-ratio').value) || 2.5;
 
   for (let i = 0; i < 3; i++) {
     const hostTargetDays   = Number(document.getElementById(`an-hday${i}`).value) || 1;
-    const memberTargetDays = Number(document.getElementById(`an-mday${i}`).value) || 1;
+    // 참여자 목표 일수 = 방장 목표 일수 × 배율 (자동)
+    const memberTargetDays = Math.round(hostTargetDays * memberRatio * 10) / 10;
+
+    // 참여자 목표 일수 표시 업데이트
+    document.getElementById(`an-mday-display${i}`).textContent = memberTargetDays + '일';
 
     // 참여자 목표 일수로 박스 드랍량 역산
-    const { gold, silver, bronze, ev: boxEV } = calcDrops(total, plays, memberTargetDays, box);
+    const { gold, silver, bronze, ev: boxEV, baseDays: memberBaseDays } = calcDrops(total, plays, memberTargetDays, box);
 
-    // 방장 필요 총EV = total / (hostTargetDays * plays)
-    // 방장 고정보상 = 방장 필요EV - 박스EV
-    const hostNeededEV       = total / (hostTargetDays * plays);
-    const hostBonus          = Math.round((hostNeededEV - boxEV) * 10) / 10;
-    const effectiveHostBonus = Math.max(0, hostBonus);
+    // 방장 고정 보상 = 방장 필요 EV - 박스 EV (자동)
+    const hostNeededEV = total / (hostTargetDays * plays);
+    const hostBonus    = Math.round((hostNeededEV - boxEV) * 10) / 10;
 
-    // 실제 필요 횟수 / 일수
-    const hostTotalEV     = boxEV + effectiveHostBonus;
-    const hostNeededPlays = hostTotalEV > 0 ? Math.round(total / hostTotalEV * 10) / 10 : 0;
-    const hostNeededDays  = plays > 0 ? Math.round(hostNeededPlays / plays * 10) / 10 : 0;
+    // 예상 달성 일수
+    const hostTotalEV    = boxEV + Math.max(0, hostBonus);
+    const hostNeededDays = hostTotalEV > 0 ? Math.round(total / (hostTotalEV * plays) * 10) / 10 : 0;
+    const memberDays     = boxEV > 0 ? Math.round(total / (boxEV * plays) * 10) / 10 : 0;
 
-    const memberNeededPlays = boxEV > 0 ? Math.round(total / boxEV * 10) / 10 : 0;
-    const memberNeededDays  = plays > 0 ? Math.round(memberNeededPlays / plays * 10) / 10 : 0;
-
-    document.getElementById(`an-g${i}`).textContent  = gold;
-    document.getElementById(`an-s${i}`).textContent  = silver;
-    document.getElementById(`an-b${i}`).textContent  = bronze;
-
-    document.getElementById(`an-ev${i}`).textContent    = boxEV;
-    document.getElementById(`an-hbonus${i}`).textContent = effectiveHostBonus >= 0 ? effectiveHostBonus : '—';
+    document.getElementById(`an-g${i}`).textContent      = gold;
+    document.getElementById(`an-s${i}`).textContent      = silver;
+    document.getElementById(`an-b${i}`).textContent      = bronze;
+    document.getElementById(`an-ev${i}`).textContent     = boxEV;
+    document.getElementById(`an-hbonus${i}`).textContent = hostBonus >= 0 ? hostBonus : '—';
 
     const hstat = document.getElementById(`an-hstat${i}`);
-    hstat.textContent = `${hostNeededPlays} / ${hostNeededDays}일`;
+    hstat.textContent = `${hostNeededDays}일`;
     hstat.className   = 'anni-stat-val ' + (hostNeededDays <= hostTargetDays ? 'ok' : 'over');
 
     const mstat = document.getElementById(`an-mstat${i}`);
-    mstat.textContent = `${memberNeededPlays} / ${memberNeededDays}일`;
-    mstat.className   = 'anni-stat-val ' + (memberNeededDays <= memberTargetDays ? 'ok' : 'over');
+    mstat.textContent = `${memberDays}일`;
+    mstat.className   = 'anni-stat-val ' + (memberDays <= memberTargetDays ? 'ok' : 'over');
   }
 }
 
