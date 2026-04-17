@@ -733,7 +733,7 @@ function calcDrops(total, plays, targetDays, box, bonusPerPlay = 0) {
 }
 
 // ── 결과 카드 HTML 생성 ──
-function makeResultCards(containerId, dayIds, pfxList, calcFn) {
+function makeResultCards(containerId, dayIds, calcFn) {
   const DIFFS = [
     { cls:'normal',  label:'Normal',  color:'#4ecb8a' },
     { cls:'hard',    label:'Hard',    color:'#5a7fff' },
