@@ -884,9 +884,13 @@ function initAnniResults() {
         </div>
       </div>
 
-      <div class="anni-host-bonus">
-        <span class="anni-host-bonus-label">방장 고정 보상 / 회 <span style="font-size:10px;font-weight:400;color:var(--gold)">(자동)</span></span>
-        <span class="anni-host-bonus-val" id="an-hbonus${i}">—</span>
+      <div class="anni-host-bonus" style="align-items:center">
+        <span class="anni-host-bonus-label">방장 고정 보상 / 회</span>
+        <input type="number" id="an-hbonus${i}" value="0" min="0" step="1"
+          oninput="calcAnnihilation()"
+          style="background:var(--bg-input);border:1px solid rgba(232,184,75,0.4);color:var(--gold);
+                 border-radius:7px;padding:6px 12px;font-size:18px;font-weight:700;
+                 font-family:'Rajdhani',sans-serif;width:110px;text-align:right;outline:none">
       </div>
 
       <div class="anni-ev-row">
@@ -936,20 +940,18 @@ function calcAnnihilation() {
     // 참여자 목표 일수로 박스 드랍량 역산
     const { gold, silver, bronze, ev: boxEV, baseDays: memberBaseDays } = calcDrops(total, plays, memberTargetDays, box);
 
-    // 방장 고정 보상 = 방장 필요 EV - 박스 EV (자동)
-    const hostNeededEV = total / (hostTargetDays * plays);
-    const hostBonus    = Math.round((hostNeededEV - boxEV) * 10) / 10;
+    // 방장 고정 보상 (직접 입력)
+    const hostBonus = Number(document.getElementById(`an-hbonus${i}`).value) || 0;
 
     // 예상 달성 일수
-    const hostTotalEV    = boxEV + Math.max(0, hostBonus);
+    const hostTotalEV    = boxEV + hostBonus;
     const hostNeededDays = hostTotalEV > 0 ? Math.round(total / (hostTotalEV * plays) * 10) / 10 : 0;
     const memberDays     = boxEV > 0 ? Math.round(total / (boxEV * plays) * 10) / 10 : 0;
 
-    document.getElementById(`an-g${i}`).textContent      = gold;
-    document.getElementById(`an-s${i}`).textContent      = silver;
-    document.getElementById(`an-b${i}`).textContent      = bronze;
-    document.getElementById(`an-ev${i}`).textContent     = boxEV;
-    document.getElementById(`an-hbonus${i}`).textContent = hostBonus >= 0 ? hostBonus : '—';
+    document.getElementById(`an-g${i}`).textContent  = gold;
+    document.getElementById(`an-s${i}`).textContent  = silver;
+    document.getElementById(`an-b${i}`).textContent  = bronze;
+    document.getElementById(`an-ev${i}`).textContent = boxEV;
 
     const hstat = document.getElementById(`an-hstat${i}`);
     hstat.textContent = `${hostNeededDays}일`;
