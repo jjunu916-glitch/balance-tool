@@ -34,6 +34,47 @@
     --glow-purple:0 0 16px rgba(168,85,247,0.3);
   }
 
+  /* ── 라이트 모드 ── */
+  body.light {
+    --bg-dark:    #f0f2f8;
+    --bg-panel:   #ffffff;
+    --bg-card:    #f5f7fc;
+    --bg-input:   #eaecf4;
+    --border:     #d0d4e8;
+    --border-glow:#a0a8cc;
+    --gold:       #b8860b;
+    --gold-dim:   #e8d080;
+    --silver:     #4a6890;
+    --silver-dim: #a0b8d0;
+    --bronze:     #a05820;
+    --bronze-dim: #d0a070;
+    --accent:     #3a5fd0;
+    --accent-dim: #c0ccf0;
+    --purple:     #7a30cc;
+    --purple-dim: #d0b8f0;
+    --text:       #1a1e30;
+    --text-dim:   #8890b0;
+    --text-mid:   #4a5070;
+    --green:      #1a8a50;
+    --red:        #c03030;
+    --glow-gold:  0 0 8px rgba(184,134,11,0.2);
+    --glow-blue:  0 0 8px rgba(58,95,208,0.2);
+    --glow-purple:0 0 8px rgba(122,48,204,0.2);
+  }
+  body.light::before { display:none; }
+
+  /* ── 다크/라이트 토글 버튼 ── */
+  .theme-toggle {
+    position:fixed; top:16px; right:20px; z-index:200;
+    background:var(--bg-panel); border:1px solid var(--border);
+    border-radius:20px; padding:7px 14px;
+    font-size:12px; font-family:'Noto Sans KR',sans-serif;
+    color:var(--text-mid); cursor:pointer;
+    display:flex; align-items:center; gap:6px;
+    transition:all .2s; box-shadow:0 2px 8px rgba(0,0,0,0.2);
+  }
+  .theme-toggle:hover { border-color:var(--border-glow); color:var(--text); }
+
   * { margin:0; padding:0; box-sizing:border-box; }
 
   body {
@@ -394,6 +435,7 @@
 </style>
 </head>
 <body>
+<button class="theme-toggle" onclick="toggleTheme()" id="theme-btn">☀️ 라이트 모드</button>
 <div class="app">
 
   <header class="header">
@@ -1051,6 +1093,12 @@ function confirmPaste() {
   renderShop();
   calc();
   closePasteModal();
+}
+
+// ── 다크/라이트 모드 토글 ──
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-btn').textContent = isLight ? '🌙 다크 모드' : '☀️ 라이트 모드';
 }
 
 // ── 초기화 ──
