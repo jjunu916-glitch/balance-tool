@@ -459,14 +459,24 @@
   <!-- ═══ 탭 2: 1인 밸런스 ═══ -->
   <div id="tab-balance" class="tab-content">
     <div class="card">
-      <div class="card-title">교환 재화 필터</div>
-      <div class="settings-grid-2" style="align-items:end">
+      <div class="card-title">교환 재화 필터 & 가중치 설정</div>
+      <div class="settings-grid" style="align-items:start">
         <div class="field">
-          <label>교환 재화 ID <span style="color:var(--text-dim);font-weight:400">(비우면 교환소 전체 합산)</span></label>
+          <label>교환 재화 ID <span style="color:var(--text-dim);font-weight:400">(비우면 전체 합산)</span></label>
           <input type="text" id="b-currency" placeholder="예: 912360" oninput="calc()" style="letter-spacing:1px">
+          <span style="font-size:10px;color:var(--gold);margin-top:4px" id="b-currency-hint">교환소 아이템 붙여넣기 후 자동 표시</span>
         </div>
         <div class="field">
-          <label style="color:var(--gold);font-size:11px" id="b-currency-hint">교환소에서 아이템을 붙여넣기하면 여기에 재화 ID가 표시됩니다</label>
+          <label>교환소 총 필요 재화 <span style="color:var(--text-dim);font-weight:400">(선택된 ID 기준)</span></label>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--bg-input);border:1px solid var(--border-glow);border-radius:7px;padding:9px 14px;">
+            <span style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--gold);text-shadow:var(--glow-gold)" id="b-filtered-total">—</span>
+            <span style="font-size:11px;color:var(--text-dim)">재화</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>가중치 max 추가 재화 <span style="color:var(--text-dim);font-weight:400">/ 회</span></label>
+          <input type="number" id="b-weight-bonus" placeholder="0" min="0" value="0" oninput="calc()" style="letter-spacing:1px">
+          <span style="font-size:10px;color:var(--text-dim);margin-top:4px">※ 가중치 7단계 도달 시 플레이당 고정 추가 보상</span>
         </div>
       </div>
     </div>
@@ -513,14 +523,24 @@
   <div id="tab-annihilation" class="tab-content">
 
     <div class="card">
-      <div class="card-title purple">교환 재화 필터</div>
-      <div class="settings-grid-2" style="align-items:end">
+      <div class="card-title purple">교환 재화 필터 & 가중치 설정</div>
+      <div class="settings-grid" style="align-items:start">
         <div class="field">
-          <label>교환 재화 ID <span style="color:var(--text-dim);font-weight:400">(비우면 교환소 전체 합산)</span></label>
+          <label>교환 재화 ID <span style="color:var(--text-dim);font-weight:400">(비우면 전체 합산)</span></label>
           <input type="text" id="a-currency" placeholder="예: 912362" oninput="calcAnnihilation()" style="letter-spacing:1px">
+          <span style="font-size:10px;color:var(--purple);margin-top:4px" id="a-currency-hint">교환소 아이템 붙여넣기 후 자동 표시</span>
         </div>
         <div class="field">
-          <label style="color:var(--purple);font-size:11px" id="a-currency-hint">교환소에서 아이템을 붙여넣기하면 여기에 재화 ID가 표시됩니다</label>
+          <label>교환소 총 필요 재화 <span style="color:var(--text-dim);font-weight:400">(선택된 ID 기준)</span></label>
+          <div style="display:flex;align-items:center;gap:8px;background:var(--bg-input);border:1px solid rgba(168,85,247,0.4);border-radius:7px;padding:9px 14px;">
+            <span style="font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:var(--purple);text-shadow:var(--glow-purple)" id="a-filtered-total">—</span>
+            <span style="font-size:11px;color:var(--text-dim)">재화</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>가중치 max 추가 재화 <span style="color:var(--text-dim);font-weight:400">/ 회</span></label>
+          <input type="number" id="a-weight-bonus" placeholder="0" min="0" value="0" oninput="calcAnnihilation()" style="letter-spacing:1px">
+          <span style="font-size:10px;color:var(--text-dim);margin-top:4px">※ 가중치 7단계 도달 시 플레이당 고정 추가 보상</span>
         </div>
       </div>
     </div>
@@ -702,17 +722,24 @@ function getBoxParams(pfx) {
 }
 
 // ── 드랍량 역산 ──
-function calcDrops(total, plays, targetDays, box) {
+// bonusPerPlay: 가중치 max(7단계) 시 플레이당 고정 추가 재화
+function calcDrops(total, plays, targetDays, box, bonusPerPlay = 0) {
   const { gp, sp, bp, gm, sm, bm, gdiff, bdiff } = box;
-  const requiredEV = total / (targetDays * plays);
-  const denom = gp*gm + sp*sm + bp*bm;
-  let silver = denom > 0 ? (requiredEV - gdiff*gp*gm + bdiff*bp*bm) / denom : 0;
-  silver = Math.round(silver);
-  const gold   = silver + gdiff;
-  const bronze = Math.max(0, silver - bdiff);
-  const ev     = Math.round((gold*gp*gm + silver*sp*sm + bronze*bp*bm) * 10) / 10;
-  const actualDays = ev > 0 ? Math.round(total / (ev * plays) * 10) / 10 : 0;
-  return { gold, silver, bronze, ev, actualDays };
+  // 박스가 달성해야 할 EV = 목표 EV - 가중치 보너스
+  const requiredBoxEV = total / (targetDays * plays) - bonusPerPlay;
+
+  let gold = 0, silver = 0, bronze = 0, boxEV = 0;
+  if (requiredBoxEV > 0) {
+    const denom = gp*gm + sp*sm + bp*bm;
+    silver = denom > 0 ? (requiredBoxEV - gdiff*gp*gm + bdiff*bp*bm) / denom : 0;
+    silver = Math.round(silver);
+    gold   = Math.max(0, silver + gdiff);
+    bronze = Math.max(0, silver - bdiff);
+    boxEV  = Math.round((gold*gp*gm + silver*sp*sm + bronze*bp*bm) * 10) / 10;
+  }
+  const totalEV    = Math.round((boxEV + bonusPerPlay) * 10) / 10;
+  const actualDays = totalEV > 0 ? Math.round(total / (totalEV * plays) * 10) / 10 : 0;
+  return { gold, silver, bronze, ev: boxEV, totalEV, bonusPerPlay, actualDays };
 }
 
 // ── 결과 카드 HTML 생성 ──
@@ -739,8 +766,12 @@ function makeResultCards(containerId, dayIds, pfxList, calcFn) {
           <div class="drop-row"><div class="drop-label"><span class="dot dot-bronze"></span>동상자</div><span class="drop-val bronze" id="${containerId}-b${i}">—</span></div>
         </div>
         <div class="ev-row">
-          <span class="ev-label">기대 EV / 회</span>
+          <span class="ev-label">박스 EV / 회</span>
           <span class="ev-val" id="${containerId}-ev${i}">—</span>
+        </div>
+        <div class="ev-row" id="${containerId}-tev-row${i}" style="display:none;background:rgba(78,203,138,0.06);border-color:rgba(78,203,138,0.2)">
+          <span class="ev-label" style="color:var(--green)">총 EV / 회 <span style="font-size:10px">(가중치 포함)</span></span>
+          <span class="ev-val" style="color:var(--green)" id="${containerId}-tev${i}">—</span>
         </div>
         <div class="days-row">
           <span class="days-label">예상 달성 일수</span>
@@ -756,14 +787,24 @@ function makeResultCards(containerId, dayIds, pfxList, calcFn) {
   }
 }
 
-function updateResultCards(containerId, dayIds, total, plays, box) {
+function updateResultCards(containerId, dayIds, total, plays, box, bonusPerPlay = 0) {
   for (let i = 0; i < 3; i++) {
     const targetDays = Number(document.getElementById(dayIds[i]).value) || 1;
-    const { gold, silver, bronze, ev, actualDays } = calcDrops(total, plays, targetDays, box);
+    const { gold, silver, bronze, ev, totalEV, actualDays } = calcDrops(total, plays, targetDays, box, bonusPerPlay);
     document.getElementById(`${containerId}-g${i}`).textContent = gold;
     document.getElementById(`${containerId}-s${i}`).textContent = silver;
     document.getElementById(`${containerId}-b${i}`).textContent = bronze;
     document.getElementById(`${containerId}-ev${i}`).textContent = ev;
+    // 가중치 보너스 있으면 총EV 행 표시
+    const tevRow = document.getElementById(`${containerId}-tev-row${i}`);
+    if (tevRow) {
+      if (bonusPerPlay > 0) {
+        tevRow.style.display = 'flex';
+        document.getElementById(`${containerId}-tev${i}`).textContent = totalEV + ' (+' + bonusPerPlay + ')';
+      } else {
+        tevRow.style.display = 'none';
+      }
+    }
     const daysEl = document.getElementById(`${containerId}-days${i}`);
     daysEl.textContent = actualDays + '일';
     daysEl.className = 'days-val ' + (actualDays <= targetDays ? 'ok' : 'over');
@@ -780,16 +821,22 @@ function updateResultCards(containerId, dayIds, total, plays, box) {
 // ── 1인 밸런스 계산 ──
 const SOLO_DAY_IDS = ['sd-n','sd-h','sd-e'];
 function calc() {
-  const currencyId = (document.getElementById('b-currency') ? document.getElementById('b-currency').value : '');
-  const total = totalRequiredByID(currencyId);
-  const totalAll = totalRequired();
-  const plays = Number(document.getElementById('s-plays').value) || 5;
+  const currencyId   = (document.getElementById('b-currency') ? document.getElementById('b-currency').value : '');
+  const weightBonus  = Number(document.getElementById('b-weight-bonus') ? document.getElementById('b-weight-bonus').value : 0) || 0;
+  const total        = totalRequiredByID(currencyId);
+  const totalAll     = totalRequired();
+  const plays        = Number(document.getElementById('s-plays').value) || 5;
+
   document.getElementById('s-total').value = total.toLocaleString();
   document.getElementById('total-display').textContent = totalAll.toLocaleString();
 
+  // 1인 밸런스 탭 내 필터링 합산 표시
+  const bFT = document.getElementById('b-filtered-total');
+  if (bFT) bFT.textContent = total > 0 ? total.toLocaleString() : '—';
+
   makeResultCards('solo-results', SOLO_DAY_IDS, 'calc');
   const box = getBoxParams('b');
-  updateResultCards('solo-results', SOLO_DAY_IDS, total, plays, box);
+  updateResultCards('solo-results', SOLO_DAY_IDS, total, plays, box, weightBonus);
   calcAnnihilation();
 }
 
@@ -851,10 +898,15 @@ function initAnniResults() {
 }
 
 function calcAnnihilation() {
-  const currencyId = (document.getElementById('a-currency') ? document.getElementById('a-currency').value : '');
-  const total = totalRequiredByID(currencyId);
-  const plays = Number(document.getElementById('a-plays').value) || 3;
+  const currencyId  = (document.getElementById('a-currency') ? document.getElementById('a-currency').value : '');
+  const weightBonus = Number(document.getElementById('a-weight-bonus') ? document.getElementById('a-weight-bonus').value : 0) || 0;
+  const total       = totalRequiredByID(currencyId);
+  const plays       = Number(document.getElementById('a-plays').value) || 3;
   document.getElementById('a-total').value = total.toLocaleString();
+
+  // 섬멸전 탭 내 필터링 합산 표시
+  const aFT = document.getElementById('a-filtered-total');
+  if (aFT) aFT.textContent = total > 0 ? total.toLocaleString() : '—';
 
   initAnniResults();
   const box = getBoxParams('an');
@@ -864,26 +916,37 @@ function calcAnnihilation() {
     const memberTargetDays = Number(document.getElementById(`an-mday${i}`).value) || 1;
 
     // 참여자 목표 일수로 박스 드랍량 역산
-    const { gold, silver, bronze, ev: boxEV } = calcDrops(total, plays, memberTargetDays, box);
+    // 가중치 보너스는 방장·참여자 공통 적용
+    const { gold, silver, bronze, ev: boxEV } = calcDrops(total, plays, memberTargetDays, box, weightBonus);
 
     // 방장 필요 총EV = total / (hostTargetDays * plays)
-    // 방장 고정보상 = 방장 필요EV - 박스EV (소수점 1자리 반올림)
+    // 방장 고정보상 = 방장 필요EV - 박스EV - 가중치보너스
     const hostNeededEV = total / (hostTargetDays * plays);
-    const hostBonus    = Math.round((hostNeededEV - boxEV) * 10) / 10;
+    const hostBonus    = Math.round((hostNeededEV - boxEV - weightBonus) * 10) / 10;
 
     // 실제 필요 횟수 / 일수
-    const hostTotalEV     = boxEV + hostBonus;
+    const effectiveHostBonus = Math.max(0, hostBonus);
+    const hostTotalEV     = boxEV + effectiveHostBonus + weightBonus;
     const hostNeededPlays = hostTotalEV > 0 ? Math.round(total / hostTotalEV * 10) / 10 : 0;
     const hostNeededDays  = plays > 0 ? Math.round(hostNeededPlays / plays * 10) / 10 : 0;
 
-    const memberNeededPlays = boxEV > 0 ? Math.round(total / boxEV * 10) / 10 : 0;
+    const memberTotalEV     = boxEV + weightBonus;
+    const memberNeededPlays = memberTotalEV > 0 ? Math.round(total / memberTotalEV * 10) / 10 : 0;
     const memberNeededDays  = plays > 0 ? Math.round(memberNeededPlays / plays * 10) / 10 : 0;
 
-    document.getElementById(`an-g${i}`).textContent      = gold;
-    document.getElementById(`an-s${i}`).textContent      = silver;
-    document.getElementById(`an-b${i}`).textContent      = bronze;
-    document.getElementById(`an-ev${i}`).textContent     = boxEV;
-    document.getElementById(`an-hbonus${i}`).textContent = hostBonus >= 0 ? hostBonus : '—';
+    document.getElementById(`an-g${i}`).textContent  = gold;
+    document.getElementById(`an-s${i}`).textContent  = silver;
+    document.getElementById(`an-b${i}`).textContent  = bronze;
+
+    // 박스 EV 표시 — 가중치 있으면 총EV도 같이 표기
+    const evEl = document.getElementById(`an-ev${i}`);
+    if (weightBonus > 0) {
+      evEl.textContent = `${boxEV} (+${weightBonus} 가중치) = ${Math.round((boxEV+weightBonus)*10)/10}`;
+    } else {
+      evEl.textContent = boxEV;
+    }
+
+    document.getElementById(`an-hbonus${i}`).textContent = effectiveHostBonus >= 0 ? effectiveHostBonus : '—';
 
     const hstat = document.getElementById(`an-hstat${i}`);
     hstat.textContent = `${hostNeededPlays} / ${hostNeededDays}일`;
