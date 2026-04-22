@@ -63,6 +63,40 @@
   }
   body.light::before { display:none; }
 
+  /* 라이트 모드 — 하드코딩 흰색 텍스트 보정 */
+  body.light .header h1          { color: #1a1e30; text-shadow:none; }
+  body.light .header h1 span     { color: var(--gold); }
+  body.light .tab-btn.active     { color: #1a1e30; }
+  body.light .btn-primary        { color: #1a1e30; }
+  body.light .modal-title        { color: #1a1e30; }
+  body.light .diff-label         { /* 카드 난이도 레이블은 색상 유지 */ }
+  body.light .drop-val.gold      { color: var(--gold); text-shadow:none; }
+  body.light .drop-val.silver    { color: var(--silver); }
+  body.light .drop-val.bronze    { color: var(--bronze); }
+  body.light .ev-val             { color: var(--accent); }
+  body.light .anni-ev-val        { color: var(--accent); }
+  body.light .card               { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  body.light .result-card        { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  body.light .anni-card          { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+  body.light .field input,
+  body.light .field select       { color: #1a1e30; }
+  body.light .box-table input    { color: #1a1e30; }
+  body.light .shop-table input   { color: #1a1e30; }
+  body.light .modal-textarea     { color: #1a1e30; }
+  body.light .anni-host-bonus-val{ color: var(--gold); text-shadow:none; }
+  body.light .role-badge.host    { color: var(--gold); }
+  body.light .role-badge.member  { color: var(--purple); }
+  body.light .anni-stat-val.ok   { color: var(--green); }
+  body.light .anni-stat-val.over { color: var(--red); }
+  body.light .days-val.ok        { color: var(--green); }
+  body.light .days-val.over      { color: var(--red); }
+
+  /* 라이트 모드 — glow/text-shadow 제거 */
+  body.light * { text-shadow: none !important; }
+  body.light .tab-btn.active  { box-shadow: none; }
+  body.light .result-card::before,
+  body.light .anni-card::before { opacity: 0.5; }
+
   /* ── 캐릭터 데코 ── */
   .char-deco {
     position:fixed; bottom:0; width:280px; height:480px;
